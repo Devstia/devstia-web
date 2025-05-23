@@ -1,0 +1,22 @@
+<h2>About</h2>
+<style>
+    .about {
+        margin:15px;
+        text-align: center;
+    }
+    a {
+        text-decoration: none;
+    }
+</style>
+<article>
+    <div class="about">
+        <img src="../images/dev_pw.png" alt="Devstia" style="width: 150px; height: 150px;">
+        <div><a href="https://devstia.com/personal-web" target="_blank">Devstia Personal Web</a></div>
+        <div id="devPwVersion" class="about-small">
+            v2.0.0
+        </div>
+        <br>
+        <br>
+        <div class="about-small">&copy; 2025 <a href="https://virtuosoft.com" target="_blank">Virtuosoft</a></div>
+    </div>
+</article>

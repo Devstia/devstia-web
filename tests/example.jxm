@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JXM Example</title>
+</head>
+<body>
+    <h1>Welcome to JXM</h1>
+    <p>This is static content.</p>
+    <?jxm
+
+        echo("Line 12... Hello from JXM!<br>");
+
+        let data = await new Promise((resolve) => {
+            echo("Line 15... Fetching data...<br>");
+            setTimeout(() => {
+                echo("Line 17...<br>");
+                resolve("Data fetched!<br>");
+            }, 2000);
+        });
+        echo("Line 21... Data: " + data + "<br>");
+
+        // This is dynamic content
+        echo("Line 26... Goodbye from JXM!<br>");
+
+    ?>
+    <p>More static content.</p>
+</body>
+</html>

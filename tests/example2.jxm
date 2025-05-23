@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JXM Example with GET parameters</title>
+</head>
+<body>
+    <h1>Welcome to JXM with GET parameters</h1>
+    <p>This is static content.</p>
+    <?jxm
+        // Access GET parameters via the 'request.query' object (URLSearchParams)
+        echo("<h2>GET Parameters:</h2>");
+
+        // Check if specific parameters exist
+        if (request.query.has('hello')) {
+            echo("<p>Parameter 'hello' exists: " + request.query.get('hello') + "</p>");
+        } else {
+            echo("<p>Parameter 'hello' not found.</p>");
+        }
+
+        if (request.query.has('planet')) {
+            echo("<p>Parameter 'planet' exists: " + request.query.get('planet') + "</p>");
+        } else {
+            echo("<p>Parameter 'planet' not found.</p>");
+        }
+
+        // Iterate over all parameters
+        echo("<h3>All Parameters:</h3>");
+        echo("<ul>");
+        for (const [key, value] of request.query.entries()) {
+            echo(`<li>${key}: ${value}</li>`);
+        }
+        echo("</ul>");
+
+        // Example of getting a parameter that might not exist
+        const nonExistent = request.query.get('foo'); // Will be null if not present
+        echo(`<p>Value of 'foo' parameter (should be null): ${nonExistent}</p>`);
+    ?>
+    <p>More static content.</p>
+</body>
+</html>

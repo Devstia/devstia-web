@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JXM Form Handler</title>
+</head>
+<body>
+    <h1>Form Submission Handler</h1>
+
+    <?jxm
+        echo("<p>Request Method: " + request.method + "</p>");
+
+        // --- Handle GET Parameters (request.query) ---
+        echo("<h2>GET Parameters (request.query):</h2>");
+        if (Array.from(request.query.keys()).length > 0) {
+            echo("<ul>");
+            for (const [key, value] of request.query.entries()) {
+                echo(`<li>GET[${key}]: ${value}</li>`);
+            }
+            echo("</ul>");
+        } else {
+            echo("<p>No GET parameters received.</p>");
+        }
+
+        // --- Handle POST Parameters (request.body) ---
+        echo("<h2>POST Parameters (request.body):</h2>");
+        // Check if body has keys (it's always a URLSearchParams object now)
+        if (Array.from(request.body.keys()).length > 0) {
+             echo("<ul>");
+            for (const [key, value] of request.body.entries()) {
+                echo(`<li>POST[${key}]: ${value}</li>`);
+            }
+            echo("</ul>");
+        } else {
+            echo("<p>No POST parameters (or unsupported content-type) received.</p>");
+        }
+
+        // Example: Accessing specific POST data
+        const username = request.body.get('username');
+        if (username) {
+            echo(`<p>Hello, ${username}!</p>`);
+        } else {
+            echo("<p>Username not provided in POST data.</p>");
+        }
+    ?>
+
+    <hr>
+    <h2>Test Form</h2>
+    <form action="form_handler.jxm?source=form" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"><br><br>
+        <input type="submit" value="Submit POST Request">
+    </form>
+     <p><a href="form_handler.jxm?test=get_param">Test with only GET</a></p>
+
+</body>
+</html>

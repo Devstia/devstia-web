@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test SSI</title>
+</head>
+<body>
+    <h1>Testing SSI Directives</h1>
+
+    <!-- Test #echo -->
+    <p>Current Date and Time: <!--#echo var="DATE_LOCAL" --></p>
+
+    <!-- Test #set and #echo -->
+    <h2>Testing Variables</h2>
+    <!--#set var="greeting" value="Hello, SSI!" -->
+    <p>Greeting: <!--#echo var="greeting" --></p>
+
+    <!-- Test #include -->
+    <h2>Included Content:</h2>
+    <!--#include virtual="other.html" -->
+
+    <!-- Test #exec -->
+    <h2>Command Output:</h2>
+    <pre><!--#exec cmd="echo This is a test command" --></pre>
+
+    <!-- Test include virtual with cgi url -->
+    <h2>Included CGI Output:</h2>
+    <pre><!--#include virtual="test3.cgi" --></pre>
+    <p>Test CGI with query string:</p>
+    <pre><!--#include virtual="test4.cgi?hello=world&planet=mars" --></pre>
+</body>
+</html>
