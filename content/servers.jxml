@@ -6,9 +6,6 @@ on your local computer using one virtual server.</p>
 <p>This is where the main content will go.</p>
 <p>On desktop screens, this area should take up roughly 2/3 of the width, while the sidebar takes 1/3.</p>
 <p>On mobile screens, the sidebar collapses and can be opened with the hamburger menu.</p>
-<? 
-
-?>
 <footer>
     <p>[1] - Pending available local resources. Maximum server space is limited to 2TB or physically available space on the local machine.</p>
 </footer>

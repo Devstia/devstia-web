@@ -1,0 +1,48 @@
+<script>
+    var progressMessages = [
+        "Welcome to Devstia Personal Web Edition (aka 'dev.pw')!~ Please wait while download completes.",
+        "You can create unlimited websites on the .dev.pw domain. ~I.e. mysite.dev.pw, yoursite.dev.pw, etc.",
+        "Before we can get started, we'll need to finish installing optimized server components for your hardware.",
+        "Please wait while we download server components.~ Keep this window open until the install completes."
+    ];
+
+    // Use ajax to get JSON data from server at content/status.jxml
+    function fetchProgress() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'content/status.jxml', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.action === 'downloading') {
+                    window.progressPercent = response.completed;
+                    if (window.progressPercent === "100%") {
+                        clearInterval(fpInterval);
+                        setTimeout(() => {
+                            window.progressMessages = [
+                                "Download complete!~ Please wait while we extract and install the files.~ We'll be ready in a moment.",
+                            ];
+                            window.showExtract = true;
+                        }, 10000);
+                    }
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    // Update progress every 2 seconds
+    var fpInterval = setInterval(fetchProgress, 3000);
+
+</script>
+<div id="progress_hype_container" class="HYPE_document" style="margin:auto;position:relative;width:600px;height:400px;overflow:hidden;">
+    <script type="text/javascript" charset="utf-8" src="hype/progress/progress.hyperesources/progress_hype_generated_script.js?39816"></script>
+</div>
+<style>
+    .HYPE_document, .HYPE_scene, .HYPE_element {
+        background-color: transparent;
+        border-radius: 8px;
+    }
+    #modal-content {
+        background: transparent;
+    }
+</style>

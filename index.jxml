@@ -206,14 +206,34 @@
              }
         }
 
+        #setup-modal {
+            display: flex;
+            position: fixed;
+            z-index: 2000;
+            left: 0; top: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+        }
+        #modal-content {
+            background: var(--pico-code-background-color);
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            position: relative;
+            min-width: 400px;
+        }
     </style>
     <script src="./js/htmx.min.js" defer></script>
+    <script src="./js/string.js" defer></script>
 </head>
 <body>
     <header class="header">
         <button class="hamburger-menu" id="hamburger">&#9776;</button>
         <div id="logo">
-            <h1 id="edition">Personal Web &infin; <button id="sites" class="outline secondary" title="Number of sites">99</button></h1>
+            <h1 id="edition">Personal Web &infin; <button id="sites" class="outline secondary" title="Number of sites">0</button></h1>
         </div>
     </header>
     <div class="app-container">
@@ -279,10 +299,43 @@
             <h1>Loading...</h1>
         </main>
     </div>
-
-    <!-- Optional Overlay for mobile -->
     <div class="overlay" id="overlay"></div>
+    <? 
+    // Check for setup requirements and show modal if needed
+    let showModal = false;
+    
+    // Show download modal if baseVMS is not set
+    const devstiaPrefs = devstia.getPreferences();
+    if (!devstiaPrefs.baseVMS) {
+        showModal = 'content/download.jxml';
+    }
 
+    // Check for Hyper-V on Windows
+    if (process.platform === 'win32') {
+        try {
+            const { execSync } = require('child_process');
+            const stdout = execSync('powershell -Command get-service | findstr vmcompute');
+            if (stdout.indexOf('Hyper-V') != -1) {
+                showModal = 'content/hyperv.html';
+            }
+        }catch(err) {
+            _e('Hyper-V Error ' . err.message);
+        }
+    }
+
+    if (showModal) {
+        _e('<div id="setup-modal">\
+        <div id="modal-content">\
+            <div id="modal-body"\
+                hx-get="' + showModal + '"\
+                hx-trigger="load"\
+                hx-swap="innerHTML">\
+                <p>Loading...</p>\
+            </div>\
+        </div>\
+        </div>');
+    }
+    ?>
     <script>
         const hamburger = document.getElementById('hamburger');
         const sidebar = document.getElementById('sidebar');
@@ -327,6 +380,5 @@
         });
 
     </script>
-
 </body>
 </html>

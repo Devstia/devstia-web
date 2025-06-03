@@ -1,0 +1,84 @@
+<?
+const fetch = require('node-fetch'); // v2 for CommonJS
+const os = require('os');
+const { spawn, spawnSync } = require('child_process');
+
+async function getLatestAssets() {
+    const platform = os.arch() === 'arm64' ? 'arm64' : 'amd64';
+    const apiUrl = 'https://api.github.com/repos/Devstia/devstia-vm/releases/latest';
+
+    const response = await fetch(apiUrl, {
+        headers: { 'User-Agent': 'devstia-app' }
+    });
+    if (!response.ok) throw new Error(`GitHub API error: ${response.statusText}`);
+    const release = await response.json();
+
+    // Filter assets for the current platform and part extensions
+    const assetRegex = new RegExp(`-${platform}\\.part\\d+$`);
+    const assets = release.assets
+        .filter(asset => assetRegex.test(asset.name))
+        .map(asset => ({
+            name: asset.name,
+            url: asset.browser_download_url,
+            size: asset.size
+        }));
+
+    return assets;
+}
+
+function isCurlAvailable() {
+    const isWin = process.platform === 'win32';
+    const cmd = isWin ? 'curl.exe' : 'curl';
+    const result = spawnSync(cmd, ['--version'], { stdio: 'ignore' });
+    return result.status === 0;
+}
+
+// Example usage:
+await getLatestAssets().then(assets => {
+    const path = require('path');
+    const fs = require('fs');
+    const destDir = path.join(devstia.getAppDataDir(), 'baseVMS');
+    const detailsFile = path.join(destDir, 'dl_details.json');
+
+    // Create the destination directory if it doesn't exist
+    if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    // Check for existing details file
+    if (!fs.existsSync(detailsFile)) {
+
+        // Write the assets details to the destDir
+        fs.writeFileSync(detailsFile, JSON.stringify(assets, null, 2));   
+
+        // Check for curl before starting downloads
+        if (!isCurlAvailable()) {
+            _e('Curl not found<br>');
+            return;
+        }
+
+        const isWin = process.platform === 'win32';
+        const curlCmd = isWin ? 'curl.exe' : 'curl';
+
+        assets.forEach(asset => {
+            const destFile = path.join(destDir, asset.name);
+
+            // Start curl as a detached async process
+            const curl = spawn(curlCmd, ['-L', '-o', destFile, asset.url], {
+                detached: true,
+                stdio: 'ignore'
+            });
+
+            curl.unref(); // Allow the parent to exit independently of the child
+        });
+
+    } // End check for existing details file
+
+    // Render dl_progress.html
+    const progressPath = path.join(devstia.getAppDataDir(), 'web', 'content', 'dl_progress.html');
+    const progressContent = fs.readFileSync(progressPath, 'utf8');
+    _e(progressContent);
+}).catch(err => {
+    _e('Error fetching assets:' + err.message);
+});
+?>

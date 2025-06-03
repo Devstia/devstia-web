@@ -1,0 +1,38 @@
+<?
+/**
+ * @file progress.jxml
+ * @brief Displays the download progress of server components in percentage.
+ * @details This file is part of the Devstia Personal Web Edition (dev.pw) project.
+ * @author Virtuosoft / Stephen J. Carnam
+ */
+    responseContext.headers['Content-Type'] = 'application/json';
+
+    // Get the download details and total up the bytes to obtain
+    const path = require('path');
+    const fs = require('fs');
+
+    const detailsPath = path.join(devstia.getAppDataDir(), 'baseVMS', 'dl_details.json');
+    let completed = "0%";
+
+    if (fs.existsSync(detailsPath)) {
+        const details = JSON.parse(fs.readFileSync(detailsPath, 'utf8'));
+        const totalExpected = details.reduce((sum, obj) => sum + (obj.size || 0), 0);
+
+        let totalActual = 0;
+        for (const obj of details) {
+            const filePath = path.join(devstia.getAppDataDir(), 'baseVMS', obj.name);
+            if (fs.existsSync(filePath)) {
+                const stats = fs.statSync(filePath);
+                totalActual += stats.size;
+            }
+        }
+
+        if (totalExpected > 0) {
+
+            const percent = Math.min(100, Math.floor((totalActual / totalExpected) * 100));
+            completed = percent + "%";
+        }
+    }
+
+    _e(JSON.stringify({ 'action': 'downloading', 'completed': completed }));
+?>
