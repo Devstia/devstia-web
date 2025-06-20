@@ -1,7 +1,9 @@
 <?
 const fetch = require('node-fetch'); // v2 for CommonJS
 const os = require('os');
-const { spawn, spawnSync } = require('child_process');
+const { spawn, spawnSync, exec } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
 async function getLatestAssets() {
     const platform = os.arch() === 'arm64' ? 'arm64' : 'amd64';
@@ -35,10 +37,9 @@ function isCurlAvailable() {
 
 // Example usage:
 await getLatestAssets().then(assets => {
-    const path = require('path');
-    const fs = require('fs');
     const destDir = path.join(devstia.getAppDataDir(), 'baseVMS');
     const detailsFile = path.join(destDir, 'dl_details.json');
+    const scriptPath = path.join(devstia.getScriptsDir(), 'download.sh');
 
     // Create the destination directory if it doesn't exist
     if (!fs.existsSync(destDir)) {
@@ -51,26 +52,23 @@ await getLatestAssets().then(assets => {
         // Write the assets details to the destDir
         fs.writeFileSync(detailsFile, JSON.stringify(assets, null, 2));   
 
-        // Check for curl before starting downloads
-        if (!isCurlAvailable()) {
-            _e('Curl not found<br>');
-            return;
-        }
+        // Construct the command to execute the download script
+        const assetUrls = assets.map(asset => asset.url);
+        const command = `"${scriptPath}" "${destDir}" ${assetUrls.join(' ')}`;
 
-        const isWin = process.platform === 'win32';
-        const curlCmd = isWin ? 'curl.exe' : 'curl';
-
-        assets.forEach(asset => {
-            const destFile = path.join(destDir, asset.name);
-
-            // Start curl as a detached async process
-            const curl = spawn(curlCmd, ['-L', '-o', destFile, asset.url], {
-                detached: true,
-                stdio: 'ignore'
-            });
-
-            curl.unref(); // Allow the parent to exit independently of the child
+        // Execute the download script as a detached process
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Error executing download script: ${error.message}`);
+                _e(`Error executing download script: ${error.message}<br>`);
+                return;
+            }
+            console.log(`Download script stdout: ${stdout}`);
+            console.error(`Download script stderr: ${stderr}`);
+            _e('Download completed.<br>');
         });
+
+        _e('Download started in the background...<br>');
 
     } // End check for existing details file
 
