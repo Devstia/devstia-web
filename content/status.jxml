@@ -12,27 +12,38 @@
     const fs = require('fs');
 
     const detailsPath = path.join(devstia.getAppDataDir(), 'baseVMS', 'dl_details.json');
+    const doneFlag = path.join(devstia.getAppDataDir(), 'baseVMS', 'done.flag');
     let completed = "0%";
+    let action = "downloading";
 
     if (fs.existsSync(detailsPath)) {
-        const details = JSON.parse(fs.readFileSync(detailsPath, 'utf8'));
-        const totalExpected = details.reduce((sum, obj) => sum + (obj.size || 0), 0);
+        if (!fs.existsSync(doneFlag) ) {
 
-        let totalActual = 0;
-        for (const obj of details) {
-            const filePath = path.join(devstia.getAppDataDir(), 'baseVMS', obj.name);
-            if (fs.existsSync(filePath)) {
-                const stats = fs.statSync(filePath);
-                totalActual += stats.size;
+            // Calculate the total expected size from the details file
+            const details = JSON.parse(fs.readFileSync(detailsPath, 'utf8'));
+            const totalExpected = details.reduce((sum, obj) => sum + (obj.size || 0), 0);
+
+            let totalActual = 0;
+            for (const obj of details) {
+                const filePath = path.join(devstia.getAppDataDir(), 'baseVMS', obj.name);
+                if (fs.existsSync(filePath)) {
+                    const stats = fs.statSync(filePath);
+                    totalActual += stats.size;
+                }
             }
-        }
 
-        if (totalExpected > 0) {
+            if (totalExpected > 0) {
 
-            const percent = Math.min(100, Math.floor((totalActual / totalExpected) * 100));
-            completed = percent + "%";
+                const percent = Math.min(100, Math.floor((totalActual / totalExpected) * 100));
+                completed = percent + "%";
+            }
+        } else {
+
+            // Done flag exists, so we assume download is complete
+            action = "extracted";
+            completed = "100%";
         }
     }
 
-    _e(JSON.stringify({ 'action': 'downloading', 'completed': completed }));
+    _e(JSON.stringify({ 'action': action, 'completed': completed }));
 ?>

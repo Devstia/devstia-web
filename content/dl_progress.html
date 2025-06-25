@@ -9,21 +9,39 @@
     // Use ajax to get JSON data from server at content/status.jxml
     function fetchProgress() {
         var xhr = new XMLHttpRequest();
+        let toBusy = false;
         xhr.open('GET', 'content/status.jxml', true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
                 if (response.action === 'downloading') {
                     window.progressPercent = response.completed;
-                    if (window.progressPercent === "100%") {
-                        clearInterval(fpInterval);
-                        setTimeout(() => {
+                    if (window.progressPercent === "100%" && window.showExtract != true && toBusy === false) {
+                        toBusy = setTimeout(() => {
                             window.progressMessages = [
                                 "Download complete!~ Please wait while we extract and install the files.~ We'll be ready in a moment.",
                             ];
                             window.showExtract = true;
+                            clearTimeout(toBusy);
+                            toBusy = false;
                         }, 10000);
                     }
+                }
+                if (response.action == "extracted" && window.showNothing != true && toBusy === false) {
+                    clearInterval(fpInterval);
+                    toBusy = setTimeout(() => {
+                        window.progressMessages = [
+                            "Server is ready!~ Please wait while we start the server for the first time. ~This may take a minute while we configure files.",
+                        ];
+                        window.showNothing = true;
+                        clearTimeout(toBusy);
+                        toBusy = false;
+
+                        // Redirect to parent window main page after 5 second delay
+                        setTimeout(() => {
+                            window.location.href = 'index.jxml?first_run=true';
+                        }, 5000);
+                    }, 5000);
                 }
             }
         };
@@ -32,7 +50,6 @@
 
     // Update progress every 2 seconds
     var fpInterval = setInterval(fetchProgress, 3000);
-
 </script>
 <div id="progress_hype_container" class="HYPE_document" style="margin:auto;position:relative;width:600px;height:400px;overflow:hidden;">
     <script type="text/javascript" charset="utf-8" src="hype/progress/progress.hyperesources/progress_hype_generated_script.js?39816"></script>
