@@ -17,12 +17,12 @@
                 if (response.action === 'downloading') {
                     window.progressPercent = response.completed;
                     if (window.progressPercent === "100%" && window.showExtract != true && toBusy === false) {
-                        toBusy = setTimeout(() => {
+                        toBusy = true;
+                        setTimeout(() => {
                             window.progressMessages = [
                                 "Download complete!~ Please wait while we extract and install the files.~ We'll be ready in a moment.",
                             ];
                             window.showExtract = true;
-                            clearTimeout(toBusy);
                             toBusy = false;
                         }, 10000);
                     }
@@ -34,8 +34,6 @@
                             "Server is ready!~ Please wait while we start the server for the first time. ~This may take a minute while we configure files.",
                         ];
                         window.showNothing = true;
-                        clearTimeout(toBusy);
-                        toBusy = false;
 
                         // Redirect to parent window main page after 5 second delay
                         setTimeout(() => {
