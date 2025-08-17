@@ -1,0 +1,121 @@
+<?
+// This file is part of Devstia Personal Web (dev.pw).
+// It is used to manage the server settings and display server information.
+// It is expected to be used in conjunction with the Devstia app.
+devstia.version = 'Not installed';
+devstia.status = 'Off';
+?>
+<h2>Server</h2>
+<p>Devstia Personal Web (dev.pw) allows you to run unlimited<sup>[1]</sup> number of websites privately
+on your local computer using a virtual server stack.</p>
+<article class="info">
+    <h5>Information</h5>
+    <div class="grid settings">
+        <div class="col1">
+            <span class="title">Snapshot</span>
+            <span class="value">cp-local250522-amd64</span>
+            <span class="title">Base</span>
+            <span class="value">cp-local250522-amd64</span>
+            <span class="title">Uptime</span>
+            <span class="value">0 days, 0:00</span>
+            <div class="row">
+                <span class="title">Version</span>
+                <span class="value"><? _e(devstia.version); ?></span>
+            </div>
+        </div>
+        <div class="col2">
+            <div>
+                <img class="icon disabled" src="images/server-off.png" alt="Server Diagram">
+            </div>
+            <div class="row">
+                <button class="primary">Download &amp; Install</button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h5>Actions</h5>
+    <div class="grid settings">
+        <div class="col1">
+            <div class="row">
+                <span class="title">Status</span>
+                <span class="value"><? _e(devstia.status); ?></span>
+            </div>
+            <div class="row">
+                <span class="title">Websites</span>
+                <span class="value">View list of websites on the server.</span>
+            </div>
+            <div class="row">
+                <span class="title">Terminal</span>
+                <span class="value">Launch terminal SSH session.</span>
+            </div>
+            <div class="row">
+                <span class="title">Files</span>
+                <span class="value">Mount server to local filesystem.</span>
+            </div>
+        </div>
+        <div class="col2">
+            <div class="row">
+                <div class="powergroup">
+                    <label class="switch" for="power">
+                        Power
+                        <input type="checkbox" id="power" name="switch-1" role="switch">
+                    </label>
+                    <button class="restart disabled">Restart</button>
+                </div>
+            </div>
+            <div class="row">
+                <button class="disabled">Websites</button>
+            </div>
+            <div class="row">
+                <button class="disabled">Terminal</button>
+            </div>
+            <div class="row">
+                <button class="disabled">Files</button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h5>Resources</h5>
+    <div class="grid settings">
+        <div class="col1">
+            <div class="row">
+                <span class="title">Disk Drive Space</span>
+                <span class="value">Available: 0 GB<sup>1</sup></span>
+            </div>
+            <div class="row">
+                <span class="title">Memory</span>
+                <span class="value">Available: 0 GB</span>
+            </div>
+            <div class="row">
+                <span class="title">CPU Cores</span>
+                <span class="value">Available: 0 Cores</span>
+            </div>
+            <div class="row">
+
+            </div>
+        </div>
+        <div class="col2">
+            <div class="row">
+                <div class="powergroup">
+                    <span>Used 0.0 GB: &nbsp;</span>
+                    <div id="diskdrivespace"></div>
+                </div>
+            </div>
+            <div class="row">
+                <span>Allocated GB:</span>
+                <input type="number" name="number" placeholder="" aria-label="Number" value="0">
+            </div>
+            <div class="row">
+                <span>Allocated Cores:</span>
+                <input type="number" name="number" placeholder="" aria-label="Number" value="0">
+            </div>
+            <div class="row">
+                <button class="disabled">Save</button>
+            </div>
+        </div>
+    </div>
+</article>
+<p>Allocated resources are limited by available local hardware capabilities.</p>
+<footer>
+    <p>[1] - Pending available local resources. Maximum server space is limited to 2TB or physically available space on the local machine.</p>
+</footer>
