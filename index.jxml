@@ -318,62 +318,52 @@
             min-width: 400px;
         }
 
-        /* --- CSS Tree for Snapshots --- */
+        /* --- CSS Tree for Snapshots (Table Ledger Style) --- */
         .tree {
-            --spacing: 1.5rem;
-            --line-color: var(--pico-border-color);
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
         }
 
-        .tree ul {
-            list-style: none;
-            padding-left: var(--spacing);
+        .tree td {
+            padding: 0.25rem 0.75rem;
+            border: 1px solid var(--pico-muted-border-color);
         }
 
-        .tree > ul {
-            padding-left: 0;
+        .tree tr td {
+             background-color: var(--pico-code-background-color);
         }
 
-        .tree li {
-            position: relative;
-            padding-left: var(--spacing);
-            list-style-type: none; /* Explicitly remove bullets */
-        }
-
-        .tree > ul > li {
-            padding-left: 0;
-        }
-
-        /* Remove all connector lines by removing their content */
-        .tree li::before,
-        .tree li::after {
-            content: none;
-        }
-
-        /* Style for the icon and text */
         .tree .tree-item {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 8px;
-            vertical-align: middle;
         }
 
         .tree .tree-item svg {
             width: 36px;
             height: 36px;
             color: var(--pico-muted-color);
+            flex-shrink: 0; /* Prevent icons from shrinking */
         }
 
         .tree .current-indicator {
-            padding-right: 8px;
-            font-size: 0.8em;
+            width: 18px;
+            height: 18px;
+            margin-right: 4px;
         }
 
-        .tree .current-snapshot {
+        /* Style for the entire current snapshot row */
+        .tree tr.current-snapshot {
+            background-color: rgba(67, 160, 71, 0.1) !important; /* Subtle green, overrides even/odd */
+        }
+
+        .tree tr.current-snapshot td {
             color: var(--pico-color-green, #43a047);
             font-weight: bold;
         }
 
-        .tree .current-snapshot svg {
+        .tree tr.current-snapshot svg {
             color: currentColor;
         }
     </style>
