@@ -1,0 +1,16 @@
+<dialog open>
+  <article>
+    <header>
+      <a href="#close" aria-label="Close" class="close" onclick="this.closest('dialog').remove()"></a>
+      Restore Snapshot
+    </header>
+    <p>
+      Dependent child snapshots exist for this snapshot. Restoring it will delete all dependent snapshots. Do you want to restore a copy instead?
+    </p>
+    <footer>
+      <a href="#cancel" role="button" class="secondary" onclick="this.closest('dialog').remove()">Cancel</a>
+      <a href="#restore-copy" role="button" class="secondary" onclick="this.closest('dialog').remove()">Restore Copy</a>
+      <a href="#delete-and-restore" role="button" onclick="this.closest('dialog').remove()">Delete Children & Restore</a>
+    </footer>
+  </article>
+</dialog>

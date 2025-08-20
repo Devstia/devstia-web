@@ -334,6 +334,36 @@
              background-color: var(--pico-code-background-color);
         }
 
+        .tree tr:nth-child(even) td {
+            background-color: var(--pico-muted-border-color);
+        }
+
+        .tree .actions {
+            text-align: right;
+            white-space: nowrap;
+            width: 1%; /* Shrink to fit content */
+        }
+
+        .tree .actions button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8em;
+            margin-left: 0.5rem;
+        }
+
+        .tree .actions button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Style for the delete button specifically */
+        .tree .actions .delete-button {
+            color: var(--pico-color-red, #d32f2f);
+            border-color: currentColor;
+        }
+
         .tree .tree-item {
             display: flex;
             align-items: center;
@@ -345,6 +375,73 @@
             height: 36px;
             color: var(--pico-muted-color);
             flex-shrink: 0; /* Prevent icons from shrinking */
+        }
+
+        /* Change cursor to pointer on the icon wrapper for snapshot items */
+        .tree .tree-item .icon-wrapper {
+            display: inline-flex; /* Ensures the wrapper fits the icons */
+            align-items: center;
+        }
+
+        /* Add hand pointer cursor, but only for non-current snapshots */
+        .tree tr:not(.current-snapshot) .icon-wrapper {
+            cursor: pointer;
+        }
+
+        /* On hover, change icon color to primary blue, EXCEPT for the current snapshot row */
+        .tree tr:not(.current-snapshot) .icon-wrapper:hover svg {
+            color: var(--pico-primary);
+        }
+
+        /* Style for the snapshot size text */
+        .tree .snapshot-size {
+            font-size: 0.6em;
+            font-weight: normal;
+            color: var(--pico-muted-color);
+            margin-left: -0.2rem;
+            padding-top: 0.35rem;
+        }
+
+        .tree .current-indicator {
+            width: 18px;
+            height: 18px;
+            margin-right: 4px;
+        }
+
+        /* Style for the entire current snapshot row */
+        .tree tr.current-snapshot {
+            background-color: rgba(67, 160, 71, 0.1) !important; /* Subtle green, overrides even/odd */
+        }
+
+        .tree tr.current-snapshot td {
+            color: var(--pico-color-green, #43a047);
+            font-weight: bold;
+        }
+
+        .tree tr.current-snapshot svg {
+            color: currentColor;
+        }
+        .tree .snapshot-name {
+            cursor: text; /* I-beam cursor for snapshot text */
+        }
+
+        /* Style for the inline edit form and input */
+        .tree .edit-form {
+            display: inline;
+            margin: 0;
+            padding: 0;
+        }
+        .tree .edit-input {
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            font-weight: inherit;
+            width: auto;
+            height: auto;
         }
 
         .tree .current-indicator {

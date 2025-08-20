@@ -1,37 +1,54 @@
 <?
 // All data and functions are defined in this single block to ensure they are in scope.
+const fs = require('fs');
+const path = require('path');
+var appDataDir = devstia.getAppDataDir();
 
-// Sample data structure.
-var snapshotData = [
-    {
-        "name": "cp-local250522-amd64",
-        "children": [
-            {
-                "name": "dev-branch-feature-x",
-                "children": [
-                    {
-                        "name": "sub-feature-test",
-                        "children": []
-                    }
-                ]
-            },
-            {
-                "name": "staging-release",
-                "children": []
-            }
-        ]
-    },
-    {
-        "name": "clean-install-v2.0.1",
-        "children": []
+// Read snapshot data from snapshots.json in the app data directory.
+var snapshotData = [];
+const snapshotsFilePath = path.join(appDataDir, 'snapshots.json');
+try {
+    if (fs.existsSync(snapshotsFilePath)) {
+        const fileContent = fs.readFileSync(snapshotsFilePath, 'utf8');
+        snapshotData = JSON.parse(fileContent);
     }
-];
-var currentSnapshot = "sub-feature-test";
+} catch (e) {
+    console.error(`Error reading or parsing snapshots.json: ${e.message}`);
+    snapshotData = []; // Ensure it's an empty array on error.
+}
+
+/**
+ * Finds the name of the snapshot with the 'active: true' property in the tree.
+ * @param {Array} nodes - The array of snapshot nodes to search.
+ * @returns {string|null} The name of the active snapshot, or null if not found.
+ */
+function findActiveSnapshot(nodes) {
+    for (const node of nodes) {
+        if (node.active === true) {
+            return node.name;
+        }
+        if (node.children && node.children.length > 0) {
+            const activeChild = findActiveSnapshot(node.children);
+            if (activeChild) {
+                return activeChild;
+            }
+        }
+    }
+    return null;
+}
+
+var currentSnapshot = findActiveSnapshot(snapshotData);
 
 // SVG icon definitions
 var snapshotIcon = `<svg class="tree-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16C13.6569 16 15 14.6569 15 13C15 11.3431 13.6569 10 12 10C10.3431 10 9 11.3431 9 13C9 14.6569 10.3431 16 12 16Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 16.8V9.2C3 8.0799 3 7.51984 3.21799 7.09202C3.40973 6.71569 3.71569 6.40973 4.09202 6.21799C4.51984 6 5.0799 6 6.2 6H7.25464C7.37758 6 7.43905 6 7.49576 5.9935C7.79166 5.95961 8.05705 5.79559 8.21969 5.54609C8.25086 5.49827 8.27836 5.44328 8.33333 5.33333C8.44329 5.11342 8.49827 5.00346 8.56062 4.90782C8.8859 4.40882 9.41668 4.08078 10.0085 4.01299C10.1219 4 10.2448 4 10.4907 4H13.5093C13.7552 4 13.8781 4 13.9915 4.01299C14.5833 4.08078 15.1141 4.40882 15.4394 4.90782C15.5017 5.00345 15.5567 5.11345 15.6667 5.33333C15.7216 5.44329 15.7491 5.49827 15.7803 5.54609C15.943 5.79559 16.2083 5.95961 16.5042 5.9935C16.561 6 16.6224 6 16.7454 6H17.8C18.9201 6 19.4802 6 19.908 6.21799C20.2843 6.40973 20.5903 6.71569 20.782 7.09202C21 7.51984 21 8.0799 21 9.2V16.8C21 17.9201 21 18.4802 20.782 18.908C20.5903 19.2843 20.2843 19.5903 19.908 19.782C19.4802 20 18.9201 20 17.8 20H6.2C5.0799 20 4.51984 20 4.09202 19.782C3.71569 19.5903 3.40973 19.2843 3.21799 18.908C3 18.4802 3 17.9201 3 16.8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 var serverIcon = `<svg class="tree-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>`;
 var targetIcon = `<svg class="current-indicator" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="9"></circle></svg>`;
+
+// SVG icon for the delete button
+var trashIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>`;
+
+// SVG icon for the add button
+var addIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>`;
 
 /**
  * Flattens the hierarchical snapshot data into a list suitable for table rendering.
@@ -49,6 +66,7 @@ function flattenTree(nodes, depth = 0) {
     }
     return flatList;
 }
+
 ?>
 
 <h2>Snapshots</h2>
@@ -64,8 +82,41 @@ function flattenTree(nodes, depth = 0) {
                     const icon = node.depth === 0 ? serverIcon : snapshotIcon;
                     const indentStyle = `padding-left: ${node.depth * 2.5}rem;`;
 
+                    // Create the size HTML if the size property exists
+                    const sizeHtml = node.size ? ` <span class="snapshot-size">(${node.size})</span>` : '';
+
                     _e(`<tr${currentClass}>`);
-                    _e(`<td><div class="tree-item" style="${indentStyle}">${indicator}${icon}<span>${node.name}</span></div></td>`);
+                    
+                    if (node.depth > 0) {
+                        // Snapshot row: Wrap icons in a span. Add title attribute only if it's not the current snapshot.
+                        const titleAttr = isCurrent ? '' : 'title="Restore Snapshot"';
+                        
+                        // Conditionally set the HTMX attributes based on whether the snapshot has children.
+                        let htmxAttrs = '';
+                        if (!isCurrent) {
+                            const modalFile = (node.children && node.children.length > 0)
+                                ? 'modal-restore-snapshot-with-children.jxml'
+                                : 'modal-restore-snapshot.jxml';
+                            htmxAttrs = `hx-get="content/${modalFile}" hx-target="body" hx-swap="beforeend"`;
+                        }
+
+                        const iconHtml = `<span class="icon-wrapper" ${titleAttr} ${htmxAttrs}>${indicator}${icon}</span>`;
+                        
+                        // Add HTMX trigger for renaming if it's a non-active snapshot
+                        let nameSpan;
+                        if (isCurrent) {
+                            nameSpan = `<span>${node.name}</span>`;
+                        } else {
+                            nameSpan = `<span class="snapshot-name" title="Rename Snapshot" hx-get="content/edit-snapshot-name.jxml?name=${encodeURIComponent(node.name)}" hx-target="this" hx-swap="outerHTML">${node.name}</span>`;
+                        }
+
+                        _e(`<td><div class="tree-item snapshot-item" style="${indentStyle}">${iconHtml}${nameSpan}${sizeHtml}</div></td>`);
+                    } else {
+                        // Server row: Standard structure.
+                        _e(`<td><div class="tree-item" style="${indentStyle}">${indicator}${icon}<span>${node.name}</span>${sizeHtml}</div></td>`);
+                    }
+
+                    _e(`<td class="actions"><button class="outline secondary delete-button" title="Delete">${trashIcon}</button><button class="primary" title="Add Snapshot">${addIcon}</button></td>`);
                     _e('</tr>');
                 }
             ?>
@@ -73,3 +124,33 @@ function flattenTree(nodes, depth = 0) {
     </table>
 </article>
 <p>This page displays the hierarchy of server snapshots. You can create new snapshots, revert to existing ones, or delete them.</p>
+<p>Target icon: <? _e(targetIcon); ?></p>
+
+<!-- Validation Error Modal (hidden by default, specific to this page) -->
+<dialog id="validation-modal">
+  <article>
+    <header>
+      <a href="#close" aria-label="Close" class="close" onclick="this.closest('dialog').close()"></a>
+      Invalid Name
+    </header>
+    <p>
+      Invalid or duplicate name. Please only use alphanumerics and hyphens to create a unique snapshot name.
+    </p>
+    <footer>
+      <a href="#confirm" role="button" onclick="this.closest('dialog').close()">OK</a>
+    </footer>
+  </article>
+</dialog>
+
+<script>
+    // Listen for the custom event triggered by the HX-Trigger header.
+    // This script is now correctly scoped to the snapshots page.
+    document.body.addEventListener('show-validation-error', function() {
+        const modal = document.getElementById('validation-modal');
+        if (modal) {
+            modal.showModal();
+        }
+    });
+</script>
+
+

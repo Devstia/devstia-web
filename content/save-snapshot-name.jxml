@@ -1,0 +1,98 @@
+<?
+const fs = require('fs');
+const path = require('path');
+var appDataDir = devstia.getAppDataDir();
+const snapshotsFilePath = path.join(appDataDir, 'snapshots.json');
+
+// Get the original and new names from the POST request using the .get() method
+const originalName = request.body.get('originalName');
+const newNameValue = request.body.get('newName');
+const newName = newNameValue ? newNameValue.trim() : '';
+
+let snapshotData = [];
+let success = false;
+let validationFailed = false;
+
+// --- Validation Functions ---
+
+/**
+ * Checks if a name is permalink-safe (alphanumeric and hyphens only).
+ * @param {string} name - The name to validate.
+ * @returns {boolean} True if the name is valid.
+ */
+function isNameValid(name) {
+    const validNameRegex = /^[a-zA-Z0-9-]+$/;
+    return validNameRegex.test(name);
+}
+
+/**
+ * Recursively checks if a snapshot name already exists in the tree.
+ * @param {Array} nodes - The array of snapshot nodes to search.
+ * @param {string} name - The name to look for.
+ * @returns {boolean} True if the name is found.
+ */
+function doesNameExist(nodes, name) {
+    for (const node of nodes) {
+        if (node.name.toLowerCase() === name.toLowerCase()) {
+            return true;
+        }
+        if (node.children && doesNameExist(node.children, name)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// --- End Validation Functions ---
+
+
+// Recursive function to find and update the snapshot name
+function findAndRename(nodes, oldName, updatedName) {
+    for (const node of nodes) {
+        if (node.name === oldName) {
+            node.name = updatedName;
+            return true; // Found and updated
+        }
+        if (node.children && findAndRename(node.children, oldName, updatedName)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+if (originalName && newName && originalName !== newName) {
+    try {
+        if (fs.existsSync(snapshotsFilePath)) {
+            const fileContent = fs.readFileSync(snapshotsFilePath, 'utf8');
+            snapshotData = JSON.parse(fileContent);
+
+            // Perform validation checks BEFORE saving
+            if (isNameValid(newName) && !doesNameExist(snapshotData, newName)) {
+                if (findAndRename(snapshotData, originalName, newName)) {
+                    fs.writeFileSync(snapshotsFilePath, JSON.stringify(snapshotData, null, 4));
+                    success = true;
+                }
+            } else {
+                // Validation failed. Set the HX-Trigger header to notify the client.
+                response.headers['HX-Trigger'] = 'show-validation-error';
+                console.warn(`Validation failed for renaming snapshot to "${newName}". It's either invalid or a duplicate.`);
+            }
+        }
+    } catch (e) {
+        console.error(`Error renaming snapshot: ${e.message}`);
+    }
+}
+
+// Respond with the updated (or original, if failed) span to complete the HTMX swap
+const finalName = success ? newName : originalName;
+
+// This is the primary content that will replace the edit form
+_e(`<span class="snapshot-name" 
+      title="Rename"
+      hx-get="content/edit-snapshot-name.jxml?name=${encodeURIComponent(finalName)}"
+      hx-target="this"
+      hx-swap="outerHTML"
+>${finalName}</span>`);
+
+// The code that previously tried to echo a dialog has been removed.
+?>

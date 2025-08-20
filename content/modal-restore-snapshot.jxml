@@ -1,0 +1,15 @@
+<dialog open>
+  <article>
+    <header>
+      <a href="#close" aria-label="Close" class="close" onclick="this.closest('dialog').remove()"></a>
+      Restore Snapshot
+    </header>
+    <p>
+      Are you sure you want to restore this snapshot? This will shut down and restart the server.
+    </p>
+    <footer>
+      <a href="#cancel" role="button" class="secondary" onclick="this.closest('dialog').remove()">Cancel</a>
+      <a href="#confirm" role="button" onclick="this.closest('dialog').remove()">Restore</a>
+    </footer>
+  </article>
+</dialog>

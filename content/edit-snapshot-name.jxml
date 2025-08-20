@@ -1,0 +1,15 @@
+<?
+    // Get the current name from the query parameter using the .get() method
+    const currentName = request.query.get('name') || '';
+?>
+<form hx-post="content/save-snapshot-name.jxml" hx-target="this" hx-swap="outerHTML" class="edit-form">
+    <input type="hidden" name="originalName" value="<? _e(currentName); ?>">
+    <input 
+        type="text" 
+        name="newName" 
+        value="<? _e(currentName); ?>" 
+        class="edit-input"
+        autofocus
+        onblur="this.form.requestSubmit()"
+    >
+</form>
