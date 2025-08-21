@@ -1,0 +1,84 @@
+<?
+const fs = require('fs');
+const path = require('path');
+var appDataDir = devstia.getAppDataDir();
+const snapshotsFilePath = path.join(appDataDir, 'snapshots.json');
+
+console.log("\n--- DELETE SNAPSHOT SCRIPT TRIGGERED ---");
+
+const nameToDelete = request.body.get('name');
+console.log(`[1] Attempting to delete snapshot: "${nameToDelete}"`);
+
+if (!nameToDelete) {
+    console.error("[FAIL] Delete script called without a 'name' parameter.");
+    response.statusCode = 400; // Bad Request
+    return; // End script execution here
+}
+
+let snapshotData = [];
+let success = false;
+
+/**
+ * Recursively removes a snapshot by name from a tree of nodes.
+ * @param {Array} nodes - The array of snapshot nodes to search.
+ * @param {string} name - The name of the snapshot to delete.
+ * @returns {Array} The filtered array of nodes without the deleted one.
+ */
+function removeSnapshot(nodes, name) {
+    // Filter out the node to be deleted at the current level
+    const filteredNodes = nodes.filter(node => node.name !== name);
+
+    // If the node was found and removed at this level, we are done here.
+    if (filteredNodes.length < nodes.length) {
+        return filteredNodes;
+    }
+    
+    // Otherwise, the node was not at this level, so we must recurse into the children.
+    return nodes.map(node => {
+        if (node.children && node.children.length > 0) {
+            // Return a new node object with the potentially updated children array
+            return { ...node, children: removeSnapshot(node.children, name) };
+        }
+        return node; // Return the node as-is if it has no children
+    });
+}
+
+try {
+    if (fs.existsSync(snapshotsFilePath)) {
+        const fileContent = fs.readFileSync(snapshotsFilePath, 'utf8');
+        snapshotData = JSON.parse(fileContent);
+        console.log("[2] Successfully read and parsed snapshots.json");
+
+        const originalDataString = JSON.stringify(snapshotData);
+        const updatedData = removeSnapshot(snapshotData, nameToDelete);
+        const updatedDataString = JSON.stringify(updatedData);
+
+        if (updatedDataString !== originalDataString) {
+            console.log("[3] Change detected. Writing updated data to snapshots.json...");
+            fs.writeFileSync(snapshotsFilePath, JSON.stringify(updatedData, null, 4));
+            console.log("[4] File write complete.");
+            success = true;
+        } else {
+            console.warn(`[FAIL] No snapshot named "${nameToDelete}" was found to delete. No changes made.`);
+        }
+    } else {
+        console.error("[FAIL] snapshots.json file does not exist.");
+    }
+} catch (e) {
+    console.error(`[FAIL] Error during delete process: ${e.message}`);
+    response.statusCode = 500; // Internal Server Error
+}
+
+if (success) {
+    console.log("[5] Success! Setting HX-Refresh header to trigger UI update.");
+    response.headers['HX-Refresh'] = 'true';
+} else {
+    console.error("[FAIL] Delete operation failed. Not sending HX-Refresh header.");
+    if (!response.statusCode) {
+        response.statusCode = 400; // Bad Request if no other error was set
+    }
+}
+
+console.log("--- DELETE SNAPSHOT SCRIPT FINISHED ---\n");
+// No body content is needed in the response.
+?>

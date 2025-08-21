@@ -116,15 +116,18 @@ function flattenTree(nodes, depth = 0) {
                         _e(`<td><div class="tree-item" style="${indentStyle}">${indicator}${icon}<span>${node.name}</span>${sizeHtml}</div></td>`);
                     }
 
-                    _e(`<td class="actions"><button class="outline secondary delete-button" title="Delete">${trashIcon}</button><button class="primary" title="Add Snapshot">${addIcon}</button></td>`);
+                    const deleteHtmx = `hx-get="content/modal-delete-snapshot.jxml?name=${encodeURIComponent(node.name)}" hx-target="body" hx-swap="beforeend"`;
+                    _e(`<td class="actions"><button class="outline secondary delete-button" title="Delete" ${deleteHtmx}>${trashIcon}</button><button class="primary" title="Add Snapshot">${addIcon}</button></td>`);
                     _e('</tr>');
                 }
             ?>
         </tbody>
     </table>
 </article>
-<p>This page displays the hierarchy of server snapshots. You can create new snapshots, revert to existing ones, or delete them.</p>
-<p>Target icon: <? _e(targetIcon); ?></p>
+<p>This page displays the hierarchy of server snapshots. You can create new snapshots,
+restore an existing one, or delete snapshots. The green <span style="color:var(--pico-color-green, #43a047);"><? _e(targetIcon); ?></span>
+target icon indicates the active snapshot. You can restore a given snapshot by clicking the corresponding <span><? _e(snapshotIcon); ?></span> snapshot icon.</p>
+
 
 <!-- Validation Error Modal (hidden by default, specific to this page) -->
 <dialog id="validation-modal">

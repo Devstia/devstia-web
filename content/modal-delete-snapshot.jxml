@@ -1,0 +1,24 @@
+<?
+    // Get the name of the snapshot to be deleted from the query parameter
+    const snapshotName = request.query.get('name') || '';
+?>
+<dialog open>
+  <article>
+    <header>
+      <a href="#close" aria-label="Close" class="close" onclick="this.closest('dialog').remove()"></a>
+      Delete Snapshot
+    </header>
+    <p>
+      Are you sure you want to delete the snapshot "<strong><? _e(snapshotName); ?></strong>" and all of its children? This action cannot be undone.
+    </p>
+    <footer>
+      <a href="#cancel" role="button" class="secondary" onclick="this.closest('dialog').remove()">Cancel</a>
+      <button 
+        hx-post="content/delete-snapshot.jxml" 
+        hx-vals='{"name": "<? _e(snapshotName); ?>"}'
+        >
+        Delete
+      </button>
+    </footer>
+  </article>
+</dialog>
